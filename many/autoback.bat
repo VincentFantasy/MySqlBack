@@ -3,12 +3,15 @@
 rem 要备份的appid
 set appid='219696853603061760'
 set password=123456
-set host=127.0.0.1
+rem set host=127.0.0.1
 set port=3306
 set backupDir=E:/tz/back/
 
+set host=192.168.105.81
+
 rem -------------------------- 应用库 ------------------------
-set dbname=local
+rem set dbname=local
+set dbname=buz_mall
 
 rem ***** 商城应用表 *****
 set tablename=ds_mallapp
@@ -22,7 +25,7 @@ set where="app_id=%appid%"
 call back.bat %password% %host% %port% %backupDir% %dbname% %tablename% %where% N N
 
 rem -------------------------- 商店库 ------------------------
-set dbname=local
+set dbname=buz_shop
 
 rem ***** 店铺数据表 *****
 set tablename=ds_store
@@ -39,18 +42,13 @@ set tablename=ds_storegoodsclass
 set where="store_id in (select id from ds_store where app_id = %appid%)"
 call back.bat %password% %host% %port% %backupDir% %dbname% %tablename% %where% Y N
 
-rem ***** 店铺冗余信息表 *****
-set tablename=ds_storeinfo
-set where="store_id in (select id from ds_store where app_id = %appid%)"
-call back.bat %password% %host% %port% %backupDir% %dbname% %tablename% %where% Y N
-
 rem ***** 店铺入驻表 *****
 set tablename=ds_storejoinin
 set where="store_name in (select store_name from ds_store where app_id = %appid%)"
 call back.bat %password% %host% %port% %backupDir% %dbname% %tablename% %where% Y N
 
-rem -------------------------- 商店库 ------------------------
-set dbname=local
+rem -------------------------- 商品库 ------------------------
+set dbname=buz_goods
 
 rem ***** 商品信息 *****
 set tablename=ds_goods
@@ -92,18 +90,19 @@ set tablename=ds_attributevalue
 set where="app_id=%appid%"
 call back.bat %password% %host% %port% %backupDir% %dbname% %tablename% %where% N N
 
-rem ***** 商品与属性对应表 *****
-set tablename=ds_goodsattrindex
-set where="goods_id in (select id from ds_goods where app_id=%appid%)"
-call back.bat %password% %host% %port% %backupDir% %dbname% %tablename% %where% Y N
-
 rem ***** 扩展区域信息表 *****
 set tablename=ds_extend_area
 set where="1=1"
 call back.bat %password% %host% %port% %backupDir% %dbname% %tablename% %where% N N
 
+rem ***** 店铺冗余信息表 *****
+rem ! 有可能有店铺还没商品的，这样的查不出来
+set tablename=ds_storeinfo
+set where="store_id in (select distinct store_id from ds_goods where app_id = %appid%)"
+call back.bat %password% %host% %port% %backupDir% %dbname% %tablename% %where% Y N
+
 rem -------------------------- 推广库 ------------------------
-set dbname=local
+set dbname=buz_transmission
 
 rem ***** 推广商品 *****
 set tablename=t_vi_spreadgoods
@@ -111,7 +110,7 @@ set where="app_id=%appid%"
 call back.bat %password% %host% %port% %backupDir% %dbname% %tablename% %where% N N
 
 rem -------------------------- 管理员库 ------------------------
-set dbname=local
+set dbname=buz_admin
 
 rem ***** 搜索关键词 *****
 set tablename=ds_keywords
@@ -120,13 +119,13 @@ call back.bat %password% %host% %port% %backupDir% %dbname% %tablename% %where% 
 
 rem ***** 品类信息 *****
 set tablename=ds_appcat
-set where="1=1"
-call back.bat %password% %host% %port% %backupDir% %dbname% %tablename% %where% N N
+set where="catgrp_id in (select id from ds_appcatgrp where catmenu_id in (select id from ds_appcatmenu where app_id=%appid%))"
+call back.bat %password% %host% %port% %backupDir% %dbname% %tablename% %where% Y N
 
 rem ***** 品类分组 *****
 set tablename=ds_appcatgrp
-set where="1=1"
-call back.bat %password% %host% %port% %backupDir% %dbname% %tablename% %where% N N
+set where="catmenu_id in (select id from ds_appcatmenu where app_id=%appid%)"
+call back.bat %password% %host% %port% %backupDir% %dbname% %tablename% %where% Y N
 
 rem ***** 品类菜单 *****
 set tablename=ds_appcatmenu
@@ -138,8 +137,13 @@ set tablename=ds_appcatnav
 set where="app_id=%appid%"
 call back.bat %password% %host% %port% %backupDir% %dbname% %tablename% %where% N N
 
+rem ***** 轮播图 *****
+set tablename=ds_cycleimage
+set where="app_id=%appid%"
+call back.bat %password% %host% %port% %backupDir% %dbname% %tablename% %where% N N
+
 rem -------------------------- 账户库 ------------------------
-set dbname=local
+set dbname=buz_account
 
 rem ***** 用户地址信息 *****
 set tablename=ds_address
