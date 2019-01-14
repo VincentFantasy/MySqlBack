@@ -41,17 +41,60 @@ rem set construction=
 set construction=-t
 
 rem 锁表
-set s=%8%
-set lock=
-if [%s%]==[Y] set lock=--lock-all-tables
-if [%s%]==[y] set lock=--lock-all-tables
+rem set s=%8%
+rem set lock=
+rem if [%s%]==[Y] set lock=--lock-all-tables
+rem if [%s%]==[y] set lock=--lock-all-tables
+
+rem 编码
+set b=%8%
+set code=utf8mb4
+if [%b%] neq [] set code=%b%
 
 rem 注释
 set a=%9%
 set anno=--compact
-if [%a%]==[Y] set anno=
-if [%a%]==[y] set anno=
+if [%a%]==[0] (
+	set anno=
+	set construction=
+	set lock=
+)
+if [%a%]==[1] (
+	set anno=--compact
+	set construction=
+	set lock=
+)
+if [%a%]==[2] (
+	set anno=
+	set construction=-t
+	set lock=
+)
+if [%a%]==[3] (
+	set anno=
+	set construction=
+	set lock=--lock-all-tables
+)
+if [%a%]==[4] (
+	set anno=--compact
+	set construction=-t
+	set lock=
+)
+if [%a%]==[5] (
+	set anno=--compact
+	set construction=
+	set lock=--lock-all-tables
+)
+if [%a%]==[6] (
+	set anno=-
+	set construction=-t
+	set lock=--lock-all-tables
+)
+if [%a%]==[7] (
+	set anno=--compact
+	set construction=-t
+	set lock=--lock-all-tables
+)
 
 rem 执行，需要安装mysql才能备份，需要锁全表才能备份
 rem mysqldump -uroot -p%password% -h %host% -P %port% %anno% %lock% --default-character-set=utf8mb4 %construction% %dbname% %tablename% --where=%where% > %backupDir%%tablename%%bakFileNameTail%.sql
-mysqldump -uroot -p%password% -h %host% -P %port% %construction% %anno% %lock% --default-character-set=utf8mb4 %dbname% %tablename% --where=%where% > %backupDir%%tablename%.sql
+mysqldump -uroot -p%password% -h %host% -P %port% %construction% %anno% %lock% --default-character-set=%code% %dbname% %tablename% --where=%where% > %backupDir%%tablename%.sql
